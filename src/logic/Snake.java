@@ -40,28 +40,41 @@ public class Snake
         return isDead;
     }
 
-    protected void updateSnake(Direction moveDirection)
+    protected void updateSnake(Direction moveDirection, int[] dotPosition)
     {
-        for(int i=snakeBlocks.size()-1; i>=1; i--)
-        {
-            int[] newBlockPosition = snakeBlocks.get(i-1).clone();
-            snakeBlocks.set(i, newBlockPosition);
-        }
-
         if(moveDirection == null)
         {
             moveDirection = currentDirection;
         }
+
+        int[] currentHeadPosition = snakeBlocks.get(0).clone();
         updateSnakeHead(moveDirection);
 
-        for(int i=1; i<snakeBlocks.size(); i++)
+        if(Arrays.equals(dotPosition, snakeBlocks.get(0)))
         {
-            if (Arrays.equals(snakeBlocks.get(0), snakeBlocks.get(i)))
+            snakeBlocks.add(1, currentHeadPosition);
+
+            for(int i=snakeBlocks.size()-1; i>=2; i--)
             {
-                isDead = true;
+                int[] newBlockPosition = snakeBlocks.get(i-1).clone();
+                snakeBlocks.set(i, newBlockPosition);
             }
         }
+        else
+        {
+            for(int i=snakeBlocks.size()-1; i>=2; i--)
+            {
+                int[] newBlockPosition = snakeBlocks.get(i-1).clone();
+                snakeBlocks.set(i, newBlockPosition);
+            }
 
+            snakeBlocks.set(1, currentHeadPosition);
+        }
+
+        if(checkInternalCollide(snakeBlocks.get(0))>=0)
+        {
+            isDead = true;
+        }
     }
 
     private void updateSnakeHead(Direction moveDirection)
@@ -86,6 +99,29 @@ public class Snake
                 snakeBlocks.get(0)[1]=(snakeBlocks.get(0)[1] +1+movableDimensions[0])%movableDimensions[1];
                 break;
         }
+    }
+
+    protected int checkInternalCollide(int[] checkPosition)
+    {
+        return checkCollide(checkPosition, 1);
+    }
+
+    protected int checkExternalCollide(int[] checkPosition)
+    {
+        return checkCollide(checkPosition, 0);
+    }
+
+    private int checkCollide(int[] checkPosition, int fromBlockNumber)
+    {
+        for(int i=fromBlockNumber; i<snakeBlocks.size(); i++)
+        {
+            if (Arrays.equals(checkPosition, snakeBlocks.get(i)))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     protected List<int[]> getSnakeBlocks()

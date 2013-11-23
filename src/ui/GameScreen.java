@@ -41,9 +41,9 @@ public class GameScreen extends JFrame
         this.setVisible(true);
     }
 
-    public void drawSnake(List<int[]> snakeBlocks)
+    public void drawWorld(List<int[]> snakeBlocks, int[] dotPosition)
     {
-        playPanel.setSnake(snakeBlocks);
+        playPanel.setWorld(snakeBlocks, dotPosition);
         playPanel.repaint();
     }
 }
@@ -52,6 +52,7 @@ class GamePanel extends JPanel
 {
     Dimension gameDimensions;
     List<int[]> snakeBlocks = null;
+    int[] dotPosition;
 
     public GamePanel(Dimension gameDimensions)
     {
@@ -75,11 +76,16 @@ class GamePanel extends JPanel
                         snakeBlock[0] * GameScreen.SCREEN_GRID_MULTIPLIER, snakeBlock[1] * GameScreen.SCREEN_GRID_MULTIPLIER,
                         GameScreen.SCREEN_GRID_MULTIPLIER, GameScreen.SCREEN_GRID_MULTIPLIER);
             }
+
+            graphics.fillRect(
+                    dotPosition[0] * GameScreen.SCREEN_GRID_MULTIPLIER, dotPosition[1] * GameScreen.SCREEN_GRID_MULTIPLIER,
+                    GameScreen.SCREEN_GRID_MULTIPLIER, GameScreen.SCREEN_GRID_MULTIPLIER);
         }
     }
 
-    void setSnake(List<int[]> snakeBlocks)
+    void setWorld(List<int[]> snakeBlocks, int[] dotPosition)
     {
         this.snakeBlocks = snakeBlocks;
+        this.dotPosition = dotPosition;
     }
 }
