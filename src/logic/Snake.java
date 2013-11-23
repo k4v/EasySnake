@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Snake
 {
-    private static final int DEFAULT_INITIAL_LENGTH = 5;
+    private static final int DEFAULT_INITIAL_LENGTH = 15;
 
     private int[] movableDimensions;
 
@@ -31,7 +31,6 @@ public class Snake
         for(int i=0; i<DEFAULT_INITIAL_LENGTH; i++)
         {
             int[] thisPosition = new int[]{(movableDimensions[0]/2)-i, (movableDimensions[1]/2)};
-            System.out.println("Adding snake at "+ Arrays.toString(thisPosition));
             snakeBlocks.add(thisPosition);
         }
     }
@@ -49,7 +48,19 @@ public class Snake
             snakeBlocks.set(i, newBlockPosition);
         }
 
+        if(moveDirection == null)
+        {
+            moveDirection = currentDirection;
+        }
         updateSnakeHead(moveDirection);
+
+        for(int i=1; i<snakeBlocks.size(); i++)
+        {
+            if (Arrays.equals(snakeBlocks.get(0), snakeBlocks.get(i)))
+            {
+                isDead = true;
+            }
+        }
 
     }
 
@@ -63,20 +74,18 @@ public class Snake
         switch(currentDirection)
         {
             case LEFT:
-                snakeBlocks.get(0)[0]-=1;
+                snakeBlocks.get(0)[0]=(snakeBlocks.get(0)[0] -1+movableDimensions[0])%movableDimensions[0];
                 break;
             case RIGHT:
-                snakeBlocks.get(0)[0]+=1;
+                snakeBlocks.get(0)[0]=(snakeBlocks.get(0)[0] +1+movableDimensions[0])%movableDimensions[0];
                 break;
             case UP:
-                snakeBlocks.get(0)[1]-=1;
+                snakeBlocks.get(0)[1]=(snakeBlocks.get(0)[1] -1+movableDimensions[0])%movableDimensions[1];
                 break;
             case DOWN:
-                snakeBlocks.get(0)[1]+=1;
+                snakeBlocks.get(0)[1]=(snakeBlocks.get(0)[1] +1+movableDimensions[0])%movableDimensions[1];
                 break;
         }
-
-        System.out.println(this.currentDirection.toString());
     }
 
     protected List<int[]> getSnakeBlocks()

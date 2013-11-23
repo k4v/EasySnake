@@ -2,8 +2,6 @@ package logic;
 
 import ui.GameScreen;
 
-import javax.swing.SwingUtilities;
-
 /**
  * Created with IntelliJ IDEA.
  * User: karthikv
@@ -26,19 +24,14 @@ public class Game implements IUpdatePerFrame
     public Game(int gridWidth, int gridHeight)
     {
         this.gameDimensions = new int[]{gridWidth, gridHeight};
-        this.playerSnake = new Snake(this.gameDimensions);
         this.keypressHandler = new KeypressHandler();
-
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run() {
-                gameScreen = new GameScreen(keypressHandler, gameDimensions);
-            }
-        });
+        gameScreen = new GameScreen(keypressHandler, gameDimensions);
     }
 
-    public void startGame()
+    public void startNewGame()
     {
+        System.out.println("Starting new game");
+        this.playerSnake = new Snake(this.gameDimensions);
         Timekeeper.getInstance().startTimer(this);         // Start timer (if it hasn't already). Adds this game instance to list of updateables
     }
 
@@ -59,6 +52,16 @@ public class Game implements IUpdatePerFrame
 
     private void gameOverRoutines()
     {
+        System.out.println("GAME OVER");
+
+        try {
+            Thread.sleep(2000);
+            startNewGame();
+        } catch (InterruptedException e)
+        {
+            System.err.println("Not continuing game because of error "+e.getMessage());
+            System.exit(1);
+        }
 
     }
 }

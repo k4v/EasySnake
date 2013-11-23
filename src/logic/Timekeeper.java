@@ -15,11 +15,9 @@ import java.util.List;
 
 public class Timekeeper
 {
-    private static final int DEFAULT_INITIAL_SPEED = 10;    // Number of frames per second
+    private static final int GAME_SPEED = 20;              // Number of frames per second
 
     private List<IUpdatePerFrame> updatePerFrameList;      // List of objects to update per frame
-    private int currentFPS;                                // Current number of frames per second
-
     long frameStartTime = 0;                               // System time when current frame was started
 
     boolean isRunning = false;                             // If time keeper is currently running.
@@ -31,7 +29,6 @@ public class Timekeeper
     private Timekeeper()
     {
         this.updatePerFrameList = new ArrayList<IUpdatePerFrame>();
-        this.currentFPS = DEFAULT_INITIAL_SPEED;
         this.isRunning = false;
     }
 
@@ -47,16 +44,19 @@ public class Timekeeper
 
     protected final void startTimer(Game game)
     {
-        updatePerFrameList.add(game);                      // Add this game instance to updateable list
+        if(!updatePerFrameList.contains(game))
+        {
+            updatePerFrameList.add(game);                  // Add this game instance to updateable list
+        }
 
         if(!isRunning)                                     // Start timer only if it wasn't started by another game instance
         {
             isRunning = true;
             frameStartTime = System.currentTimeMillis();
 
-            while(currentFPS > 0)
+            while(isRunning)
             {
-                if((System.currentTimeMillis() - frameStartTime)/1000.0f > (1.0f/currentFPS))
+                if((System.currentTimeMillis() - frameStartTime)/1000.0f > (1.0f/ GAME_SPEED))
                 {
                     for(IUpdatePerFrame iUpdateable : updatePerFrameList)
                     {
@@ -71,17 +71,6 @@ public class Timekeeper
 
     protected final void stopTimer()
     {
-        currentFPS = 0;
         isRunning = false;
-    }
-
-    protected synchronized void updateTime(int newFPS)
-    {
-        this.currentFPS = newFPS;
-    }
-
-    public void add(IUpdatePerFrame objectToUpdate)
-    {
-        updatePerFrameList.add(objectToUpdate);
     }
 }
