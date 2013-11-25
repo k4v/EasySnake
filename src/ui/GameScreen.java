@@ -1,12 +1,18 @@
 package ui;
 
-import logic.KeypressHandler;
+import logic.WorldState;
+import logic.framework.KeypressHandler;
+import main.GameProperties;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.util.List;
 
@@ -21,71 +27,94 @@ import java.util.List;
 
 public class GameScreen extends JFrame
 {
-    public static final int SCREEN_GRID_MULTIPLIER = 8;
-
     GamePanel playPanel;
+    JLabel scoreLabel;
 
-    public GameScreen(KeypressHandler keyPressHandler, int[] gameDimensions)
+    public GameScreen(KeypressHandler keyPressHandler, GameProperties gameProperties)
     {
         super("Easy Snake");
-        Dimension screenArea = new Dimension(gameDimensions[0]*SCREEN_GRID_MULTIPLIER, gameDimensions[1]*SCREEN_GRID_MULTIPLIER);
-        playPanel = new GamePanel(screenArea);
+
+
+        playPanel = new GamePanel(gameProperties);
+
+        scoreLabel = new JLabel("Score: 0", null, SwingConstants.LEFT);
 
         //Initialization of the Swing frame
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.setLayout(new FlowLayout());
         this.addKeyListener(keyPressHandler);
         this.add(playPanel);
+        this.add(scoreLabel);
 
         // Make game screen visible
         this.pack();
         this.setVisible(true);
     }
 
-    public void drawWorld(List<int[]> snakeBlocks, int[] dotPosition)
+    public void drawWorld(List<int[]> snakeBlocks, WorldState worldState)
     {
-        playPanel.setWorld(snakeBlocks, dotPosition);
+        if(worldState!=null)
+        {
+            scoreLabel.setText("Score: "+worldState.getScore());
+            this.pack();
+        }
+
+        playPanel.setWorld(snakeBlocks, worldState);
         playPanel.repaint();
     }
 }
 
 class GamePanel extends JPanel
 {
+    private static final int SCREEN_GRID_MULTIPLIER = 8;
+
+    GameProperties gameProperties;
     Dimension gameDimensions;
     List<int[]> snakeBlocks = null;
-    int[] dotPosition;
+    WorldState worldState;
 
-    public GamePanel(Dimension gameDimensions)
+    public GamePanel(GameProperties gameProperties)
     {
-        this.gameDimensions = gameDimensions;
-        this.setBackground(new Color(153, 255, 47));
+        this.gameProperties = gameProperties;
+
+        gameDimensions = new Dimension(gameProperties.getGridWidth()*SCREEN_GRID_MULTIPLIER,
+                gameProperties.getGridHeight()*SCREEN_GRID_MULTIPLIER);
+
+        this.setBackground(new Color(gameProperties.getScreenColor(), false));
     }
 
     public Dimension getPreferredSize()
     {
-        return gameDimensions;
+        return this.gameDimensions;
     }
 
     public void paintComponent(Graphics graphics)
     {
+        graphics.setColor(new Color(gameProperties.getSnakeColor()));
         super.paintComponent(graphics);
         if(snakeBlocks!=null)
         {
             for(int[] snakeBlock : snakeBlocks)
             {
                 graphics.fillRect(
-                        snakeBlock[0] * GameScreen.SCREEN_GRID_MULTIPLIER, snakeBlock[1] * GameScreen.SCREEN_GRID_MULTIPLIER,
-                        GameScreen.SCREEN_GRID_MULTIPLIER, GameScreen.SCREEN_GRID_MULTIPLIER);
+                        snakeBlock[0] * SCREEN_GRID_MULTIPLIER, snakeBlock[1] * SCREEN_GRID_MULTIPLIER,
+                        SCREEN_GRID_MULTIPLIER, SCREEN_GRID_MULTIPLIER);
             }
 
             graphics.fillRect(
-                    dotPosition[0] * GameScreen.SCREEN_GRID_MULTIPLIER, dotPosition[1] * GameScreen.SCREEN_GRID_MULTIPLIER,
-                    GameScreen.SCREEN_GRID_MULTIPLIER, GameScreen.SCREEN_GRID_MULTIPLIER);
+                    worldState.getDotPosition()[0] * SCREEN_GRID_MULTIPLIER, worldState.getDotPosition()[1] * SCREEN_GRID_MULTIPLIER,
+                    SCREEN_GRID_MULTIPLIER, SCREEN_GRID_MULTIPLIER);
+        }
+        else
+        {
+            graphics.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 28));
+            graphics.drawString("GAME OVER", (gameDimensions.width/2)-80, (gameDimensions.height)/2);
         }
     }
 
-    void setWorld(List<int[]> snakeBlocks, int[] dotPosition)
+    void setWorld(List<int[]> snakeBlocks, WorldState worldState)
     {
         this.snakeBlocks = snakeBlocks;
-        this.dotPosition = dotPosition;
+        this.worldState = worldState;
     }
 }

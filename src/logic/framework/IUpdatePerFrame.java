@@ -1,4 +1,4 @@
-package logic;
+package logic.framework;
 
 /**
  * Created with IntelliJ IDEA.
