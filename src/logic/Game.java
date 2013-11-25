@@ -1,5 +1,9 @@
 package logic;
 
+import logic.framework.IUpdatePerFrame;
+import logic.framework.KeypressHandler;
+import logic.framework.Timekeeper;
+import main.GameProperties;
 import ui.GameScreen;
 
 import java.util.Random;
@@ -18,47 +22,54 @@ public class Game implements IUpdatePerFrame
     GameScreen gameScreen;                                 // Game UI. Has to be created here to use the same keypress handler
 
     Snake playerSnake;                                     // Snake instance
-    int[] dotPosition;                                     // Position of the collectible dot
-    int[] gameDimensions;                                  // Grid dimensioins for this game
+    WorldState worldState;                                 // World state (dot position, score)
+
+    GameProperties gameProperties;                         // Game Properties :P
 
     KeypressHandler keypressHandler;
 
-    public Game(int gridWidth, int gridHeight)
+    public Game(GameProperties gameProperties)
     {
-        this.gameDimensions = new int[]{gridWidth, gridHeight}; // Game co-ords. Different from pixel sizes
+        this.gameProperties = gameProperties;
         this.keypressHandler = new KeypressHandler();           // Listens to keypress events
-        this.gameScreen = new GameScreen(keypressHandler, gameDimensions);     // Game will be drawn here
+        this.gameScreen = new GameScreen(keypressHandler, this.gameProperties);     // Game will be drawn here
     }
 
     public void startNewGame()
     {
         System.out.println("Starting new game");
-        this.playerSnake = new Snake(this.gameDimensions); // Create Snake object here
+        this.worldState = new WorldState();
+        this.playerSnake = new Snake(this.gameProperties); // Create Snake object here
         createDot();                                       // Create the first collectibe dot
 
-        Timekeeper.getInstance().startTimer(this);         // Start timer (if it hasn't already). Adds this game instance to list of updateables
+        Timekeeper.getInstance().startTimer(this, gameProperties.getGameSpeed());        // Start timer (if it hasn't already). Adds this game instance to list of updateables
     }
 
     private void createDot()
     {
+        int[] dotPosition;
         Random random = new Random();
         do
         {
-            dotPosition = new int[]{random.nextInt(this.gameDimensions[0]), random.nextInt(this.gameDimensions[1])};
+            dotPosition = new int[]{random.nextInt(gameProperties.getGridWidth()), random.nextInt(gameProperties.getGridHeight())};
         } while(playerSnake.checkExternalCollide(dotPosition)>=0);             // Create a new dot on the screen where the snake isn't already
+
+        worldState.setDot(dotPosition);
     }
 
     @Override
     public void update()
     {
+        int[] dotPosition = worldState.getDotPosition();
         if(!playerSnake.isDead())
         {
             playerSnake.updateSnake(keypressHandler.getLastPressedDirection(), dotPosition);  // First update snake position
             if(playerSnake.checkExternalCollide(dotPosition)>=0)
             {
+                worldState.setScore(worldState.getScore()+1);
                 createDot();
             }
-            gameScreen.drawWorld(playerSnake.getSnakeBlocks(), dotPosition);   // Then draw the updated world
+            gameScreen.drawWorld(playerSnake.getSnakeBlocks(), worldState);   // Then draw the updated world
         }
         else
         {
@@ -70,6 +81,7 @@ public class Game implements IUpdatePerFrame
     private void gameOverRoutines()
     {
         System.out.println("GAME OVER");
+        gameScreen.drawWorld(null, null);                                      // Null parameters to indicate "game over"
 
         try {
             Thread.sleep(1500);                                 // Small delay before the next game starts

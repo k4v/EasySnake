@@ -1,4 +1,6 @@
-package logic;
+package logic.framework;
+
+import logic.Direction;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -12,7 +14,7 @@ import java.awt.event.KeyListener;
  * Event listener to listen for key presses. Only stores last key presses.
  */
 
-public class KeypressHandler implements KeyListener, IUpdatePerFrame
+public class KeypressHandler implements KeyListener
 {
     private Direction lastPressedDirection = null;
     @Override
@@ -62,11 +64,5 @@ public class KeypressHandler implements KeyListener, IUpdatePerFrame
     {
         this.lastPressedDirection = setDirection;
 
-    }
-
-    @Override
-    public void update()
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

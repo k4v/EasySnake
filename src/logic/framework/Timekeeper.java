@@ -1,4 +1,6 @@
-package logic;
+package logic.framework;
+
+import logic.Game;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +17,6 @@ import java.util.List;
 
 public class Timekeeper
 {
-    private static final int GAME_SPEED = 20;              // Number of frames per second
-
     private List<IUpdatePerFrame> updatePerFrameList;      // List of objects to update per frame
     long frameStartTime = 0;                               // System time when current frame was started
 
@@ -42,7 +42,7 @@ public class Timekeeper
         return INSTANCE;
     }
 
-    protected final void startTimer(Game game)
+    public final void startTimer(Game game, int gameSpeed)
     {
         if(!updatePerFrameList.contains(game))
         {
@@ -56,7 +56,7 @@ public class Timekeeper
 
             while(isRunning)
             {
-                if((System.currentTimeMillis() - frameStartTime)/1000.0f > (1.0f/ GAME_SPEED))
+                if((System.currentTimeMillis() - frameStartTime)/1000.0f > (1.0f/ gameSpeed))
                 {
                     for(IUpdatePerFrame iUpdateable : updatePerFrameList)
                     {
@@ -69,7 +69,7 @@ public class Timekeeper
         }
     }
 
-    protected final void stopTimer()
+    public final void stopTimer()
     {
         isRunning = false;
     }

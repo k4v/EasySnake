@@ -1,5 +1,7 @@
 package logic;
 
+import main.GameProperties;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,8 +15,6 @@ import java.util.List;
 
 public class Snake
 {
-    private static final int DEFAULT_INITIAL_LENGTH = 15;
-
     private int[] movableDimensions;
 
     private List<int[]> snakeBlocks;
@@ -22,13 +22,13 @@ public class Snake
 
     Direction currentDirection = Direction.RIGHT;
 
-    protected Snake(int[] gameDimensions)
+    protected Snake(GameProperties gameProperties)
     {
-        this.movableDimensions = gameDimensions;
-        snakeBlocks = new ArrayList<int[]>(DEFAULT_INITIAL_LENGTH);
+        this.movableDimensions = new int[]{gameProperties.getGridWidth(), gameProperties.getGridHeight()};
+        snakeBlocks = new ArrayList<int[]>(gameProperties.getSnakeLength());
         isDead = false;
 
-        for(int i=0; i<DEFAULT_INITIAL_LENGTH; i++)
+        for(int i=0; i<gameProperties.getSnakeLength(); i++)
         {
             int[] thisPosition = new int[]{(movableDimensions[0]/2)-i, (movableDimensions[1]/2)};
             snakeBlocks.add(thisPosition);
@@ -53,22 +53,11 @@ public class Snake
         if(Arrays.equals(dotPosition, snakeBlocks.get(0)))
         {
             snakeBlocks.add(1, currentHeadPosition);
-
-            for(int i=snakeBlocks.size()-1; i>=2; i--)
-            {
-                int[] newBlockPosition = snakeBlocks.get(i-1).clone();
-                snakeBlocks.set(i, newBlockPosition);
-            }
         }
         else
         {
-            for(int i=snakeBlocks.size()-1; i>=2; i--)
-            {
-                int[] newBlockPosition = snakeBlocks.get(i-1).clone();
-                snakeBlocks.set(i, newBlockPosition);
-            }
-
-            snakeBlocks.set(1, currentHeadPosition);
+            snakeBlocks.add(1, currentHeadPosition);
+            snakeBlocks.remove(snakeBlocks.size()-1);
         }
 
         if(checkInternalCollide(snakeBlocks.get(0))>=0)

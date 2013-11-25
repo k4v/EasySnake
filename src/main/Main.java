@@ -14,9 +14,9 @@ import logic.Game;
 
 public class Main
 {
-    public static void main(String[] args)
+    public static void main(String[] args) throws Exception
     {
-        Game game = new Game(50, 50);
+        Game game = new Game(GameProperties.getPropertiesFromFile("levels/contrast.properties"));
         game.startNewGame();
 
     }
