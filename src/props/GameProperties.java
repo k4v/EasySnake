@@ -1,6 +1,8 @@
-package main;
+package props;
 
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -23,6 +25,8 @@ public class GameProperties
     private static final String SNAKE_LENGTH_PROP = "snake.length";
     private static final String SCREEN_COLOR_PROP = "screen.color";
     private static final String SNAKE_COLOR_PROP  = "snake.color";
+    private static final String MAZE_COLOR_PROP   = "maze.color";
+    private static final String MAZE_BLOCKS_PROP  = "maze.blocks";
 
     /**
      * List of default values for supported game properties
@@ -33,35 +37,32 @@ public class GameProperties
     private static final int DEFAULT_SNAKE_LENGTH = 15;
     private static final int DEFAULT_SCREEN_COLOR = 0xffffff;
     private static final int DEFAULT_SNAKE_COLOR  = 0x000000;
+    private static final int DEFAULT_MAZE_COLOR   = 0xffffff;
+    private static final List<int[]> DEFAULT_MAZE_BLOCKS  = new ArrayList<int[]>(0);
+
+    private static final GameProperties DEFAULT_GAME_PROPERTIES = getDefaultGameProperties();
 
     Properties gameProperties = new Properties();          // Store for game properties
+    List<int[]> mazeBlocks = new ArrayList<int[]>();       // List of blocks for the maze in the level
 
-    /**
-     * Static instance of default game properties
-     */
-    private static final GameProperties DEFAULT_GAME_PROPERTIES = new GameProperties(
-            DEFAULT_GAME_SPEED,
-            DEFAULT_GRID_WIDTH,
-            DEFAULT_GRID_HEIGHT,
-            DEFAULT_SNAKE_LENGTH,
-            DEFAULT_SCREEN_COLOR,
-            DEFAULT_SNAKE_COLOR);
-
-    private GameProperties(Integer gameSpeed, Integer gridWidth, Integer gridHeight,
-                           Integer snakeLength, Integer screenColor, Integer snakeColor)
+    private GameProperties()
     {
-        gameProperties.put(GAME_SPEED_PROP, gameSpeed);
-        gameProperties.put(GRID_WIDTH_PROP, gridWidth);
-        gameProperties.put(GRID_HEIGHT_PROP, gridHeight);
-        gameProperties.put(SNAKE_LENGTH_PROP, snakeLength);
-        gameProperties.put(SCREEN_COLOR_PROP, screenColor);
-        gameProperties.put(SNAKE_COLOR_PROP, snakeColor);
     }
 
     // Return static instance of default game properties
     public static GameProperties getDefaultGameProperties()
     {
-        return DEFAULT_GAME_PROPERTIES;
+        GameProperties defaultGameProperties = new GameProperties();
+        defaultGameProperties.gameProperties.put(GAME_SPEED_PROP, DEFAULT_GAME_SPEED);
+        defaultGameProperties.gameProperties.put(GRID_WIDTH_PROP, DEFAULT_GRID_WIDTH);
+        defaultGameProperties.gameProperties.put(GRID_HEIGHT_PROP, DEFAULT_GRID_HEIGHT);
+        defaultGameProperties.gameProperties.put(SNAKE_LENGTH_PROP, DEFAULT_SNAKE_LENGTH);
+        defaultGameProperties.gameProperties.put(SCREEN_COLOR_PROP, DEFAULT_SCREEN_COLOR);
+        defaultGameProperties.gameProperties.put(SNAKE_COLOR_PROP, DEFAULT_SNAKE_COLOR);
+        defaultGameProperties.gameProperties.put(MAZE_COLOR_PROP, DEFAULT_MAZE_COLOR);
+        defaultGameProperties.mazeBlocks = DEFAULT_MAZE_BLOCKS;
+
+        return defaultGameProperties;
     }
 
     /**
@@ -74,10 +75,11 @@ public class GameProperties
     {
         try
         {
-            GameProperties gameProperties = DEFAULT_GAME_PROPERTIES;
+            GameProperties gameProperties = new GameProperties();
             Properties fileProperties = new Properties();
             fileProperties.load(new FileReader(fileName));
 
+            //Read the integer values from the properties file
             for (Object propKey : DEFAULT_GAME_PROPERTIES.gameProperties.keySet())
             {
                 try
@@ -93,6 +95,25 @@ public class GameProperties
                     System.out.println("Setting default value for "+propKey);
                     gameProperties.gameProperties.put(propKey, DEFAULT_GAME_PROPERTIES.gameProperties.get(propKey));
                 }
+            }
+
+            /**
+             * Save set of maze blocks from file
+             * The property value is expected to be in the format x1:y1,x2:y2,...
+             */
+            try
+            {
+                String mazeBlocksProp = fileProperties.getProperty(MAZE_BLOCKS_PROP, "");
+                System.out.println("Maze blocks: "+mazeBlocksProp);
+                for(String mazeBlockString : mazeBlocksProp.split(","))
+                {
+                    String[] mazeBlock = mazeBlockString.split(":");
+                    gameProperties.mazeBlocks.add(new int[]
+                            {Integer.parseInt(mazeBlock[0]), Integer.parseInt(mazeBlock[1])});
+                }
+            } catch (Exception e)
+            {
+                gameProperties.mazeBlocks = DEFAULT_MAZE_BLOCKS;
             }
 
             return gameProperties;
@@ -137,5 +158,16 @@ public class GameProperties
     public Integer getScreenColor()
     {
         return (Integer)gameProperties.get(SCREEN_COLOR_PROP);
+    }
+
+    public Integer getMazeColor()
+    {
+        return (Integer)gameProperties.get(MAZE_COLOR_PROP);
+    }
+
+    public List<int[]> getMazeBlocks()
+    {
+        return mazeBlocks; // The values in the GameProperties object are only read during game initialization
+                           // so it doesn't matter if the variables are mutable
     }
 }

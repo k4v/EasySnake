@@ -1,6 +1,6 @@
 package logic;
 
-import main.GameProperties;
+import props.GameProperties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,13 +22,14 @@ public class Snake
 
     Direction currentDirection = Direction.RIGHT;
 
+    // Initialize snake using game properties
     protected Snake(GameProperties gameProperties)
     {
-        this.movableDimensions = new int[]{gameProperties.getGridWidth(), gameProperties.getGridHeight()};
-        snakeBlocks = new ArrayList<int[]>(gameProperties.getSnakeLength());
-        isDead = false;
+        this.movableDimensions = new int[]{gameProperties.getGridWidth(), gameProperties.getGridHeight()};   // Set grid in which snake can move
+        snakeBlocks = new ArrayList<int[]>(gameProperties.getSnakeLength());   // Set list of blocks of the snake
+        isDead = false;                                                        // Specifies if snake is dead
 
-        for(int i=0; i<gameProperties.getSnakeLength(); i++)
+        for(int i=0; i<gameProperties.getSnakeLength(); i++)                   // Position each block of the snake
         {
             int[] thisPosition = new int[]{(movableDimensions[0]/2)-i, (movableDimensions[1]/2)};
             snakeBlocks.add(thisPosition);
@@ -40,10 +41,18 @@ public class Snake
         return isDead;
     }
 
+    /**
+     * Update the snake position. Uses the current location and direction information to move the snake one frame.
+     * Also checks for collision with a dot
+     *
+     * @param moveDirection
+     * @param dotPosition
+     */
     protected void updateSnake(Direction moveDirection, int[] dotPosition)
     {
         if(moveDirection == null)
         {
+            // No new input
             moveDirection = currentDirection;
         }
 
@@ -52,20 +61,28 @@ public class Snake
 
         if(Arrays.equals(dotPosition, snakeBlocks.get(0)))
         {
+            // Snake eats dot, length++
             snakeBlocks.add(1, currentHeadPosition);
         }
         else
         {
+            // Move snake 1 block
             snakeBlocks.add(1, currentHeadPosition);
             snakeBlocks.remove(snakeBlocks.size()-1);
         }
 
-        if(checkInternalCollide(snakeBlocks.get(0))>=0)
+        // Check if snake has collided with itself
+        for(int i=1; i<snakeBlocks.size(); i++)
         {
+            if(checkHeadCollide(snakeBlocks.get(i))>=0)
             isDead = true;
         }
     }
 
+    /**
+     * Move snake head in the given direction
+     * @param moveDirection Direction in which to move
+     */
     private void updateSnakeHead(Direction moveDirection)
     {
         if(Math.abs(currentDirection.getDirection()) != Math.abs(moveDirection.getDirection()))
@@ -90,19 +107,34 @@ public class Snake
         }
     }
 
-    protected int checkInternalCollide(int[] checkPosition)
+    // Kill snake. Required for collisions with maze
+    protected void killSnake()
     {
-        return checkCollide(checkPosition, 1);
+        isDead = true;
     }
 
-    protected int checkExternalCollide(int[] checkPosition)
+    /**
+     * Check snake head has collided with anything
+     * @return 0 if collision occured. -1 if no collision
+     */
+    protected int checkHeadCollide(int[] checkPosition)
     {
-        return checkCollide(checkPosition, 0);
+        if (Arrays.equals(snakeBlocks.get(0), checkPosition))
+        {
+            return 0;
+        }
+
+        return -1;
     }
 
-    private int checkCollide(int[] checkPosition, int fromBlockNumber)
+    /**
+     * Check collisions of any portion of snake with a point.
+     * @param checkPosition External point with which to check collision
+     * @return
+     */
+    protected int checkBodyCollide(int[] checkPosition)
     {
-        for(int i=fromBlockNumber; i<snakeBlocks.size(); i++)
+        for(int i=1; i<snakeBlocks.size(); i++)
         {
             if (Arrays.equals(checkPosition, snakeBlocks.get(i)))
             {
