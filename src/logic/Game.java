@@ -6,6 +6,7 @@ import logic.framework.Timekeeper;
 import props.GameProperties;
 import ui.GameScreen;
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -19,12 +20,12 @@ import java.util.Random;
 
 public class Game implements IUpdatePerFrame
 {
-    GameScreen gameScreen;                                 // Game UI. Has to be created here to use the same keypress handler
+    GameScreen gameScreen;                                      // Game UI. Has to be created here to use the same keypress handler
 
-    Snake playerSnake;                                     // Snake instance
-    WorldState worldState;                                 // World state (dot position, score)
+    Snake playerSnake;                                          // Snake instance
+    WorldState worldState;                                      // World state (dot position, score)
 
-    GameProperties gameProperties;                         // Game Properties :P
+    GameProperties gameProperties;                              // Game Properties :P
 
     KeypressHandler keypressHandler;
 
@@ -39,10 +40,10 @@ public class Game implements IUpdatePerFrame
     {
         System.out.println("Starting new game");
         this.worldState = new WorldState();
-        this.playerSnake = new Snake(this.gameProperties); // Create Snake object here
-        createDot();                                       // Create the first collectibe dot
+        this.playerSnake = new Snake(this.gameProperties);      // Create Snake object here
+        createDot();                                            // Create the first collectibe dot
 
-        Timekeeper.getInstance().startTimer(this, gameProperties.getGameSpeed());        // Start timer (if it hasn't already). Adds this game instance to list of updateables
+        Timekeeper.getInstance().startTimer(this, gameProperties.getGameSpeed());   // Start timer (if it hasn't already). Adds this game instance to list of updateables
     }
 
     private void createDot()
@@ -52,9 +53,22 @@ public class Game implements IUpdatePerFrame
         do
         {
             dotPosition = new int[]{random.nextInt(gameProperties.getGridWidth()), random.nextInt(gameProperties.getGridHeight())};
-        } while(playerSnake.checkBodyCollide(dotPosition)>=0);             // Create a new dot on the screen where the snake isn't already
+        } while(playerSnake.checkBodyCollide(dotPosition)>=0 || checkMazeCollide(dotPosition));  // Create a new dot on the screen where the snake and maze isn't already
 
         worldState.setDot(dotPosition);
+    }
+
+    private boolean checkMazeCollide(int[] checkPosition)
+    {
+        for(int[] blockPosition : gameProperties.getMazeBlocks())
+        {
+            if(Arrays.equals(blockPosition, checkPosition))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -76,6 +90,7 @@ public class Game implements IUpdatePerFrame
                 if(playerSnake.checkHeadCollide(mazeBlock)>=0)
                 {
                     playerSnake.killSnake();
+                    return;
                 }
             }
             gameScreen.drawWorld(playerSnake.getSnakeBlocks(), worldState);   // Then draw the updated world
