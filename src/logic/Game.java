@@ -53,7 +53,7 @@ public class Game implements IUpdatePerFrame
         do
         {
             dotPosition = new int[]{random.nextInt(gameProperties.getGridWidth()), random.nextInt(gameProperties.getGridHeight())};
-        } while(playerSnake.checkBodyCollide(dotPosition)>=0 || checkMazeCollide(dotPosition));  // Create a new dot on the screen where the snake and maze isn't already
+        } while(playerSnake.checkBodyCollide(dotPosition)>=0 || checkMazeCollide(dotPosition));  // Create a new dot on the screen where the snake or maze isn't already
 
         worldState.setDot(dotPosition);
     }
@@ -97,15 +97,15 @@ public class Game implements IUpdatePerFrame
         }
         else
         {
-            Timekeeper.getInstance().stopTimer();                              // Timer stops here. So no more frame updates
-            gameOverRoutines();                                                // What to do on death
+            Timekeeper.getInstance().stopTimer();               // Timer stops here. So no more frame updates
+            gameOverRoutines();                                 // What to do on death
         }
     }
 
     private void gameOverRoutines()
     {
         System.out.println("GAME OVER");
-        gameScreen.drawWorld(null, null);                                      // Null parameters to indicate "game over"
+        gameScreen.drawWorld(null, null);                       // Null parameters to indicate "game over"
 
         try {
             Thread.sleep(1500);                                 // Small delay before the next game starts
