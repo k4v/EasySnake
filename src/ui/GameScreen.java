@@ -22,7 +22,7 @@ import java.util.List;
  * Date: 11/22/13
  * Time: 12:38 PM
  *
- * Draws the entire Snake game. Converts the snake co-ords into screen co-ords
+ * Draws the entire Snake game. Converts game co-ords into screen co-ords
  */
 
 public class GameScreen extends JFrame
@@ -37,7 +37,7 @@ public class GameScreen extends JFrame
 
         playPanel = new GamePanel(gameProperties);
 
-        scoreLabel = new JLabel("Score: 0", null, SwingConstants.LEFT);
+        scoreLabel = new JLabel("Score:\n0", null, SwingConstants.CENTER);
 
         //Initialization of the Swing frame
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -55,7 +55,7 @@ public class GameScreen extends JFrame
     {
         if(worldState!=null)
         {
-            scoreLabel.setText("Score: "+worldState.getScore());
+            scoreLabel.setText("Score:\n"+worldState.getScore());
             this.pack();
         }
 
@@ -110,7 +110,7 @@ class GamePanel extends JPanel
                 graphics.setColor(new Color(gameProperties.getMazeColor()));
                 for(int[] mazeBlock : gameProperties.getMazeBlocks())
                 {
-                    graphics.drawRect(
+                    graphics.fillRect(
                             mazeBlock[0] * SCREEN_GRID_MULTIPLIER, mazeBlock[1] * SCREEN_GRID_MULTIPLIER,
                             SCREEN_GRID_MULTIPLIER, SCREEN_GRID_MULTIPLIER);
                 }
@@ -118,6 +118,7 @@ class GamePanel extends JPanel
         }
         else
         {
+            // NULL because game over
             graphics.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 28));
             graphics.drawString("GAME OVER", (gameDimensions.width/2)-80, (gameDimensions.height)/2);
         }
