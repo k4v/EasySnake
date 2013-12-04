@@ -4,3 +4,5 @@ grid.height=75
 snake.length=15
 screen.color=0xffffff
 snake.color=0x000000
+maze.color=0x000000
+maze.blocks=

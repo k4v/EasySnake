@@ -2,7 +2,7 @@ package ui;
 
 import logic.WorldState;
 import logic.framework.KeypressHandler;
-import main.GameProperties;
+import props.GameProperties;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -104,6 +104,17 @@ class GamePanel extends JPanel
             graphics.fillRect(
                     worldState.getDotPosition()[0] * SCREEN_GRID_MULTIPLIER, worldState.getDotPosition()[1] * SCREEN_GRID_MULTIPLIER,
                     SCREEN_GRID_MULTIPLIER, SCREEN_GRID_MULTIPLIER);
+
+            if(gameProperties.getMazeBlocks().size()>0)
+            {
+                graphics.setColor(new Color(gameProperties.getMazeColor()));
+                for(int[] mazeBlock : gameProperties.getMazeBlocks())
+                {
+                    graphics.drawRect(
+                            mazeBlock[0] * SCREEN_GRID_MULTIPLIER, mazeBlock[1] * SCREEN_GRID_MULTIPLIER,
+                            SCREEN_GRID_MULTIPLIER, SCREEN_GRID_MULTIPLIER);
+                }
+            }
         }
         else
         {

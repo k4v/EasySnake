@@ -1,6 +1,7 @@
 package main;
 
 import logic.Game;
+import props.GameProperties;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,7 +17,7 @@ public class Main
 {
     public static void main(String[] args) throws Exception
     {
-        Game game = new Game(GameProperties.getPropertiesFromFile("levels/contrast.properties"));
+        Game game = new Game(GameProperties.getPropertiesFromFile("levels/line_maze.level"));
         game.startNewGame();
 
     }

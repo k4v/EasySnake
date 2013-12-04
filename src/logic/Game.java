@@ -3,7 +3,7 @@ package logic;
 import logic.framework.IUpdatePerFrame;
 import logic.framework.KeypressHandler;
 import logic.framework.Timekeeper;
-import main.GameProperties;
+import props.GameProperties;
 import ui.GameScreen;
 
 import java.util.Random;
@@ -52,7 +52,7 @@ public class Game implements IUpdatePerFrame
         do
         {
             dotPosition = new int[]{random.nextInt(gameProperties.getGridWidth()), random.nextInt(gameProperties.getGridHeight())};
-        } while(playerSnake.checkExternalCollide(dotPosition)>=0);             // Create a new dot on the screen where the snake isn't already
+        } while(playerSnake.checkBodyCollide(dotPosition)>=0);             // Create a new dot on the screen where the snake isn't already
 
         worldState.setDot(dotPosition);
     }
@@ -64,10 +64,19 @@ public class Game implements IUpdatePerFrame
         if(!playerSnake.isDead())
         {
             playerSnake.updateSnake(keypressHandler.getLastPressedDirection(), dotPosition);  // First update snake position
-            if(playerSnake.checkExternalCollide(dotPosition)>=0)
+            if(playerSnake.checkHeadCollide(dotPosition)>=0)
             {
                 worldState.setScore(worldState.getScore()+1);
                 createDot();
+            }
+
+            // Check for collision with maze
+            for(int[] mazeBlock : gameProperties.getMazeBlocks())
+            {
+                if(playerSnake.checkHeadCollide(mazeBlock)>=0)
+                {
+                    playerSnake.killSnake();
+                }
             }
             gameScreen.drawWorld(playerSnake.getSnakeBlocks(), worldState);   // Then draw the updated world
         }
