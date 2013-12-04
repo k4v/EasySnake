@@ -12,10 +12,9 @@ import java.awt.event.KeyListener;
  * Event listener to listen for key presses. Only stores last key presses.
  */
 
-public class KeypressHandler implements KeyListener
+public class KeypressHandler implements KeyListener, IUpdatePerFrame
 {
-    private Direction lastPressedDirection = Direction.RIGHT;
-
+    private Direction lastPressedDirection = null;
     @Override
     public void keyTyped(KeyEvent e)
     {
@@ -25,20 +24,23 @@ public class KeypressHandler implements KeyListener
     @Override
     public void keyPressed(KeyEvent e)
     {
-        switch(e.getKeyCode())
+        if(lastPressedDirection == null)
         {
-            case KeyEvent.VK_LEFT:
-                lastPressedDirection = Direction.LEFT;
-                break;
-            case KeyEvent.VK_RIGHT:
-                lastPressedDirection = Direction.RIGHT;
-                break;
-            case KeyEvent.VK_UP:
-                lastPressedDirection = Direction.UP;
-                break;
-            case KeyEvent.VK_DOWN:
-                lastPressedDirection = Direction.DOWN;
-                break;
+            switch(e.getKeyCode())
+            {
+                case KeyEvent.VK_LEFT:
+                    setNextDirection(Direction.LEFT);
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    setNextDirection(Direction.RIGHT);
+                    break;
+                case KeyEvent.VK_UP:
+                    setNextDirection(Direction.UP);
+                    break;
+                case KeyEvent.VK_DOWN:
+                    setNextDirection(Direction.DOWN);
+                    break;
+            }
         }
     }
 
@@ -50,6 +52,21 @@ public class KeypressHandler implements KeyListener
 
     public Direction getLastPressedDirection()
     {
-        return lastPressedDirection;
+        Direction lastDirection = lastPressedDirection;
+        setNextDirection(null);
+
+        return lastDirection;
+    }
+
+    private synchronized void setNextDirection(Direction setDirection)
+    {
+        this.lastPressedDirection = setDirection;
+
+    }
+
+    @Override
+    public void update()
+    {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 }
